@@ -1699,19 +1699,25 @@ static void _sde_cp_crtc_commit_feature(struct sde_cp_node *prop_node,
 
 	if (prop_node->feature == SDE_CP_CRTC_DSPP_PCC) {
 		blob = prop_node->blob_ptr;
-		pcc_cfg = blob->data;
-
-                if (!(pcc_cfg->r.c == 0 && pcc_cfg->g.c == 0 && pcc_cfg->b.c == 0)) {
-                        sde_crtc_state->color_invert_on = true;
-		        if (sde_is_fod_pressed(&sde_crtc->base)) {
-				hw_cfg.payload = NULL;
-				hw_cfg.len = 0;
-				skip_color_invert = true;
-			} else {
-			        skip_color_invert = false;
-			}
+		if (!blob) {
+			sde_crtc_state->color_invert_on = false;
+			skip_color_invert = false;
 		} else {
-		        sde_crtc_state->color_invert_on = false;
+			pcc_cfg = blob->data;
+
+			if (!(pcc_cfg->r.c == 0 && pcc_cfg->g.c == 0 &&
+					pcc_cfg->b.c == 0)) {
+				sde_crtc_state->color_invert_on = true;
+				if (sde_is_fod_pressed(&sde_crtc->base)) {
+					hw_cfg.payload = NULL;
+					hw_cfg.len = 0;
+					skip_color_invert = true;
+				} else {
+					skip_color_invert = false;
+				}
+			} else {
+				sde_crtc_state->color_invert_on = false;
+			}
 		}
 	}
 
